@@ -4,7 +4,7 @@ if(!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
 // classe para validar dados quando necessário
 
 class validadorDados
-{
+{    
 
     function mascara($valor, $mascara){
 
@@ -46,16 +46,16 @@ class validadorDados
         if(count($num)!=14)
             {
                 return array(
-                    "status" => false,
-                    "resultado" => "Diferente de 14 dígitos"
+                    'status' => false,
+                    'resultado' => "Diferente de 14 dígitos"
                 );
             }
         //Etapa 3: O número 00000000000 embora não seja um cnpj real resultaria um cnpj válido após o calculo dos dígitos verificares e por isso precisa ser filtradas nesta etapa.
         if ($num[0]==0 && $num[1]==0 && $num[2]==0 && $num[3]==0 && $num[4]==0 && $num[5]==0 && $num[6]==0 && $num[7]==0 && $num[8]==0 && $num[9]==0 && $num[10]==0 && $num[11]==0)
             {
                 return array(
-                    "status" => false,
-                    "resultado" => "Igual à 00000000000"
+                    'status' => false,
+                    'resultado' => "Igual à 00000000000"
                 );
             }
         //Etapa 4: Calcula e compara o primeiro dígito verificador.
@@ -118,8 +118,8 @@ class validadorDados
                 if($dg!=$num[13])
                     {
                         return array(
-                            "status" => false,
-                            "resultado" => "CNPJ Inválido"
+                            'status' => false,
+                            'resultado' => "CNPJ Inválido"
                         );
                     }
                 else
@@ -128,8 +128,8 @@ class validadorDados
                         $res = preg_replace('/[^\p{L}\p{N}\s]/', '', $cnpj );
 
                         return array(
-                            "status" => true,
-                            "resultado" => mascara($res, "##.###.###/####-##")
+                            'status' => true,
+                            'resultado' => $this->mascara($res, "##.###.###/####-##")
                         );
                     }
             }
@@ -153,8 +153,8 @@ class validadorDados
         if(count($num)!=8)
             {
                 return array(
-                    "status" => false,
-                    "resultado" => "Diferente de 8 dígitos"
+                    'status' => false,
+                    'resultado' => "Diferente de 8 dígitos"
                 );
             }
 
@@ -163,8 +163,8 @@ class validadorDados
         if ($num[0]==0 && $num[1]==0 && $num[2]==0 && $num[3]==0 && $num[4]==0 && $num[5]==0 && $num[6]==0 && $num[7]==0 )
         {
             return array(
-                "status" => false,
-                "resultado" => "Igual à 00000000"
+                'status' => false,
+                'resultado' => "Igual à 00000000"
             );
         }
             //Etapa 4: Aplica a máscara
@@ -173,8 +173,8 @@ class validadorDados
                 $res = preg_replace('/[^\p{L}\p{N}\s]/', '', $cep );
 
                 return array(
-                    "status" => true,
-                    "resultado" => mascara($res, "#####-###")
+                    'status' => true,
+                    'resultado' => $this->mascara($res, "#####-###")
                 );
             }
     }
@@ -197,8 +197,8 @@ class validadorDados
         if(count($num) != 10 && count($num) != 11)
             {
                 return array(
-                    "status" => false,
-                    "resultado" => "Diferente de 10 ou 11 dígitos"
+                    'status' => false,
+                    'resultado' => "Diferente de 10 ou 11 dígitos"
                 );
             }
 
@@ -207,8 +207,8 @@ class validadorDados
         if ($num[0]==0 && $num[1]==0 && $num[2]==0 && $num[3]==0 && $num[4]==0 && $num[5]==0 && $num[6]==0 && $num[7]==0 && $num[8]==0 && $num[9]==0 && $num[10]==0 && $num[11]==0 )
         {
             return array(
-                "status" => false,
-                "resultado" => "Igual à 0000000000"
+                'status' => false,
+                'resultado' => "Igual à 0000000000"
             );
         }
             //Etapa 4: Aplica a máscara
@@ -218,13 +218,13 @@ class validadorDados
 
                 if(strlen($res) == 10) {
                     return array(
-                        "status" => true,
-                        "resultado" => mascara($res, "(##) ####-####")
+                        'status' => true,
+                        'resultado' => $this->mascara($res, "(##) ####-####")
                     );
                 } else if (strlen($res) == 11) {
                     return array(
-                        "status" => true,
-                        "resultado" => mascara($res, "(##) #####-####")
+                        'status' => true,
+                        'resultado' => $this->mascara($res, "(##) #####-####")
                     );
                 }
 
@@ -242,35 +242,39 @@ class validadorDados
     
         if (preg_match($pattern, $email))
             return array(
-                "status" => true,
-                "resultado" => $email
+                'status' => true,
+                'resultado' => $email
             );
         else
             return array(
-                "status" => false,
-                "resultado" => "E-mail Inválido"
+                'status' => false,
+                'resultado' => "E-mail Inválido"
             );
         }
 
     }
 
     function cidadeValida($idCidade){
+        $GLOBALS['log']->fatal('Fatal level message 1');
 
         global $db;
-
+        $GLOBALS['log']->fatal('Fatal level message 2');
         $select = "SELECT count(*) AS ct FROM it4_cidades WHERE id = '$idCidade' AND deleted = 0";
+        $GLOBALS['log']->fatal('Fatal level message 3' . $select);
         $res = $db->query($select);
+        $GLOBALS['log']->fatal('Fatal level message 4');
         $row = $db->fetchByAssoc($res);
+        $GLOBALS['log']->fatal('Fatal level message 5');
         
-        if($row['ct'] == 0) {
+        if($row["ct"] == 0) {
             return array(
-                "status" => false,
-                "resultado" => "ID de Cidade não cadastrado."
+                'status' => false,
+                'resultado' => "ID de Cidade não cadastrado."
             );
         }  else {
             return array(
-                "status" => true,
-                "resultado" => $idCidade
+                'status' => true,
+                'resultado' => $idCidade
             );
         }
 
@@ -284,15 +288,15 @@ class validadorDados
         $res = $db->query($select);
         $row = $db->fetchByAssoc($res);
         
-        if($row['ct'] == 0) {
+        if($row["ct"] == 0) {
             return array(
-                "status" => false,
-                "resultado" => "ID de Estado não cadastrado."
+                'status' => false,
+                'resultado' => "ID de Estado não cadastrado."
             );
         }  else {
             return array(
-                "status" => true,
-                "resultado" => $idEstado
+                'status' => true,
+                'resultado' => $idEstado
             );
         }
 

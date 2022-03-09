@@ -11,7 +11,7 @@ $manifest = array(
 	'description' => 'Classe Validadora de Dados',
 	'icon' => '',
 	'is_uninstallable' => true,
-    'published_date' => date("Y-m-d");,
+    'published_date' => date("Y-m-d"),
 	'type' => 'module',
 	'version' => '1.0',
 );
@@ -21,7 +21,7 @@ $installdefs = array(
 	'copy' => array(
         array(
             'from' => '<basepath>/validadorDados.php',
-            'to' => 'custom/ValidadorDados/validadorDados.php'
+            'to' => 'custom/Saneamento/ValidadorDados/validadorDados.php'
         )
     )	
 );
