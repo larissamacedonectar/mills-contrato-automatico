@@ -3,53 +3,177 @@ if (!defined('sugarEntry') || !sugarEntry) {
     die('Not A Valid Entry Point');
 }
 
-print_r("Sanear CNPJ");
-print_r("<br>");
-print_r(sanearCNPJ("58.623.488/0001-93"));
-print_r("<br>");
-print_r(sanearCNPJ("58.623.488/0001-01"));
+$params = array(
+    "module" => $_GET["table"],
+    "field" => $_GET["field"],
+	"limit" => $_GET["limit"],
+	"email" => $_GET["email"],
+	"type" => $_GET["type"]
+);
 
-print_r("<br>");
-print_r("<br>");
-print_r("Sanear CEP");
-print_r("<br>");
-print_r(sanearCEP("12345-123"));
-print_r("<br>");
-print_r(sanearCEP("12345"));
+saneamentoMaster($params);
 
-print_r("<br>");
-print_r("<br>");
-print_r("Sanear Telefones");
-print_r("<br>");
-print_r(sanearTelefone("11977759239"));
-print_r("<br>");
-print_r(sanearTelefone("114040-4040"));
-print_r("<br>");
-print_r(sanearTelefone("00000000000"));
+function saneamentoMaster($params)
+{
+    require_once('include/upload_file.php');
+    require_once('include/utils.php');
+    global $db;
 
-print_r("<br>");
-print_r("<br>");
-print_r("Sanear Email");
-print_r("<br>");
-print_r(sanearEmail("larissa.macedo@nectarconsulting.com.br"));
-print_r("<br>");
-print_r(sanearEmail("teste.teste.com"));
+	$module = $params["module"];
+	$field = $params["field"];
+	$limit = $params["limit"];
+	$email = $params["email"];
+	$type = $params["type"];
 
-print_r("<br>");
-print_r("<br>");
-print_r("Sanear Cidade");
-print_r("<br>");
-print_r(sanearCidade("191c6dac-1648-11ec-b617-06e41dba421a"));
-print_r("<br>");
-print_r(sanearCidade("191c6dac-1648-11ec-b617-06e41dba421a-TESTEINVALIDO"));
+	$connect_url = $GLOBALS['app_list_strings']['IMPORTACAO_FTP']['connect_url'];
+	$login = $GLOBALS['app_list_strings']['IMPORTACAO_FTP']['login'];
+	$password = $GLOBALS['app_list_strings']['IMPORTACAO_FTP']['password'];
+	$pasta = $GLOBALS['app_list_strings']['IMPORTACAO_FTP']['pasta_saneamento'];
+	$arquivo = "saneamento_contacts.csv";
+	
+	$source = $pasta ."/saneamento_contacts.csv";
+	$arquivo =  $pasta ."/saneamento_contacts.csv";
+	
+    $conn = ftp_connect($connect_url) or die("Could not connect");
 
-print_r("<br>");
-print_r("<br>");
-print_r("Sanear Estado");
-print_r("<br>");
-print_r(sanearEstado("11"));
-print_r("<br>");
-print_r(sanearEstado("TESTE-INVALIDO"));
+    ftp_login($conn,$login,$password);
+    ftp_set_option($conn, FTP_USEPASVADDRESS, false);
+    ftp_pasv($conn, true) or die("Cannot switch to passive mode");
+    ftp_get($conn,$target,$source,FTP_ASCII);
+	
+    $contents = ftp_nlist($conn, $pasta);
+	
+	$GLOBALS['log']->fatal("Fez Login FTP para Saneamento");
+	
+    foreach ($contents as $nomeArquivo) {
+        if ($nomeArquivo == $arquivo) {
+					$source = $arquivo;
+					$target = "saneamento_contacts.csv";
+					break;
+			
+			} 
+    }
+
+    ftp_set_option($conn, FTP_USEPASVADDRESS, false);
+    ftp_get($conn,$target,$source,FTP_ASCII);
+
+    $fieldseparator = ";";
+    $lineseparator = "\n";
+    $addauto = 0;
+
+    $uploadFile = new UploadFile();
+	
+	if($uploadFile->temp_file_location = $target)
+	{
+		$GLOBALS['log']->fatal("Carregou temp_file");
+	}
+	else{
+		$GLOBALS['log']->fatal("Deu erro ao carregar temp_file");
+	}
+    $file = $uploadFile->get_file_contents();
+
+	$GLOBALS['log']->fatal("get_file_contents:" . print_r($uploadFile, True));
+
+    if(!$file) {
+        $GLOBALS['log']->fatal("Erro ao Abrir o Arquivo");
+        exit;
+    }
+
+	$cstm = strpos($module, "_cstm");
+	if ($cstm === false) {
+		$type_query = $db->query("SELECT id, " . $field . " FROM " . $module . " WHERE deleted != 1");
+	} else {
+		$type_query = $db->query("SELECT id_c AS id, " . $field . " FROM " . $module . " WHERE deleted != 1");
+	}
+
+    while($row = $db->fetchByAssoc($type_query) )
+    {
+		if ($cstm === false) {
+			$types[$row['id']] = $row[$field];
+		} else {
+			$types[$row['id_c']] = $row[$field];
+		}
+        
+    }
+
+    $linearray = array();
+    $head = [];
+    
+	$file = rtrim($file);
+	$lines = explode($lineseparator,$file);
+	$first_line = getArrayFromLine($lines[0], $fieldseparator);
+    $GLOBALS['log']->fatal("FIRST LINE ARRAY" . print_r($first_line, true));
+
+    $idposition = array_search("ID", $first_line);
+    $name_position = array_search($field, $first_line);
+	$log = "";
+
+    $GLOBALS['log']->fatal("COMEÇOU IMPORTAÇÃO");
+
+	array_shift($lines);
+    foreach($lines as $line) {
+
+        $linearray = getArrayFromLine($line, $fieldseparator);
+        
+        $id = $linearray[$idposition];
+        $dado = $linearray[$name_position];
+
+		$GLOBALS['log']->fatal("dado:" . print_r($dado, True));
+
+		if($type == "cnpj") {
+			$resultadoValidacao = sanearCNPJ($dado);
+		} else if ($type == "cep") {
+			$resultadoValidacao = sanearCEP($dado);
+		} else if ($type == "telefone") {
+			$resultadoValidacao = sanearTelefone($dado);
+		} else if ($type == "email") {
+			$resultadoValidacao = sanearEmail($dado);
+		} else if ($type == "cidade") {
+			$resultadoValidacao = sanearCidade($dado);
+		} else if ($type == "estado") {
+			$resultadoValidacao = sanearEstado($dado);
+		} else {
+			$resultadoValidacao = array(
+                'status' => true,
+                'resultado' => $dado
+			);
+		}
+
+		$GLOBALS['log']->fatal("resultadoValidacao:" . print_r($resultadoValidacao, True));
+
+		if ($resultadoValidacao["status"] == true) {
+			if($cstm == false) {
+				$GLOBALS['log']->fatal("UPDATE " . $module . " SET " . $field . " = '" . $dado . "' WHERE id = '$id'");
+				$db->query("UPDATE " . $module . " SET " . $field . " = '" . $dado . "' WHERE id = '$id'");
+			} else {
+				$GLOBALS['log']->fatal("UPDATE " . $module . " SET " . $field . " = '" . $dado . "' WHERE id_c = '$id'");
+				$db->query("UPDATE " . $module. " SET " . $field . " = '" . $dado . "' WHERE id_c = '$id'");
+			}
+		} else {
+			$log .= $id . " - " . $resultadoValidacao["resultado"];
+			$log .= "<br>";
+		}
+        
+    }
+	echo '<div>';
+	echo $log;
+	echo '</div>';
+	
+	$GLOBALS['log']->fatal("TERMNOU IMPORTAÇÃO");
+	return true; // Necessário para que o job não dê erro de execução (Samuel Shin Kim - 26/11/2020)																							  
+
+}
+
+function getArrayFromLine($line, $fieldseparator){
+
+    $line = trim($line," \t");
+    $line = str_replace("\r","",$line);
+
+
+    $line = str_replace("'","\'",$line);
+
+    return explode($fieldseparator,$line);
+}
 
 function sanearCNPJ($cnpj){
 
