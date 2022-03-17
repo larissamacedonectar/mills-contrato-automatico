@@ -1,0 +1,57 @@
+{
+	"info": {
+		"_postman_id": "235d2aa0-e32e-4178-b7e1-0c540728a5ff",
+		"name": "Mills - Contrato Automatico",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "SaneamentoDadosAPI",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \t\"module\": \"{{module}}\",\r\n\t\t\"field\": \"{{field}}\",\r\n\t\t\"limit\": {{limit}},\r\n        \"email\": \"{{email}}\",\r\n        \"type\": \"{{type}}\",\r\n\t\t\"page\": {{page}}\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/rest/v11_10/SaneamentoDadosAPI",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"rest",
+						"v11_10",
+						"SaneamentoDadosAPI"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

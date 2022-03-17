@@ -1,0 +1,83 @@
+[
+    {
+        "module": "accounts_cstm",
+        "field": "cnpj_c",
+        "limit": "5",
+        "email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "cnpj",
+        "page": "0"
+    },
+    {
+    	"module": "accounts",
+		"field": "phone_office",
+		"limit": "5",
+		"email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "telefone",
+		"page": "0"
+    },
+    {
+        "module": "accounts_cstm",
+        "field": "billing_address_postalcode",
+        "limit": "5",
+        "email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "cep",
+        "page": "0"
+    },
+    {
+        "module": "accounts_cstm",
+        "field": "it4_cidades_id_c",
+        "limit": "5",
+        "email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "cidade",
+        "page": "0"
+    },
+    {
+        "module": "accounts_cstm",
+        "field": "it4_estados_id_c",
+        "limit": "5",
+        "email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "estado",
+        "page": "0"
+    },
+    {
+        "module": "accounts_cstm",
+        "field": "cnae_c",
+        "limit": "5",
+        "email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "outros",
+        "page": "0"
+    },
+    {
+        "module": "accounts_cstm",
+        "field": "im_c",
+        "limit": "5",
+        "email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "outros",
+        "page": "0"
+    },
+    {
+        "module": "accounts_cstm",
+        "field": "imunicipal_c",
+        "limit": "5",
+        "email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "outros",
+        "page": "0"
+    },
+    {
+        "module": "accounts_cstm",
+        "field": "nome_do_projeto_c",
+        "limit": "5",
+        "email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "telefone",
+        "page": "0"
+    },
+    {
+        "module": "accounts",
+        "field": "billing_address_street",
+        "limit": "5",
+        "email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "outros",
+        "page": "0"
+    }
+
+]

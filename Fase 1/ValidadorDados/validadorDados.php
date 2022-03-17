@@ -47,7 +47,7 @@ class validadorDados
             {
                 return array(
                     'status' => false,
-                    'resultado' => "Diferente de 14 dígitos"
+                    'resultado' => "CNPJ Inválido - Diferente de 14 dígitos"
                 );
             }
         //Etapa 3: O número 00000000000 embora não seja um cnpj real resultaria um cnpj válido após o calculo dos dígitos verificares e por isso precisa ser filtradas nesta etapa.
@@ -55,7 +55,7 @@ class validadorDados
             {
                 return array(
                     'status' => false,
-                    'resultado' => "Igual à 00000000000"
+                    'resultado' => "CNPJ Inválido - Igual à 00000000000"
                 );
             }
         //Etapa 4: Calcula e compara o primeiro dígito verificador.
@@ -129,7 +129,7 @@ class validadorDados
 
                         return array(
                             'status' => true,
-                            'resultado' => $this->mascara($res, "##.###.###/####-##")
+                            'resultado' => $res
                         );
                     }
             }
@@ -154,7 +154,7 @@ class validadorDados
             {
                 return array(
                     'status' => false,
-                    'resultado' => "Diferente de 8 dígitos"
+                    'resultado' => "CEP Inválido - Diferente de 8 dígitos"
                 );
             }
 
@@ -164,7 +164,7 @@ class validadorDados
         {
             return array(
                 'status' => false,
-                'resultado' => "Igual à 00000000"
+                'resultado' => "CEP Inválido - Igual à 00000000"
             );
         }
             //Etapa 4: Aplica a máscara
@@ -174,7 +174,7 @@ class validadorDados
 
                 return array(
                     'status' => true,
-                    'resultado' => $this->mascara($res, "#####-###")
+                    'resultado' => $res
                 );
             }
     }
@@ -198,7 +198,7 @@ class validadorDados
             {
                 return array(
                     'status' => false,
-                    'resultado' => "Diferente de 10 ou 11 dígitos"
+                    'resultado' => "Telefone Inválido - Diferente de 10 ou 11 dígitos"
                 );
             }
 
@@ -208,7 +208,7 @@ class validadorDados
         {
             return array(
                 'status' => false,
-                'resultado' => "Igual à 0000000000"
+                'resultado' => "Telefone Inválido - Igual à 0000000000"
             );
         }
             //Etapa 4: Aplica a máscara
@@ -219,12 +219,12 @@ class validadorDados
                 if(strlen($res) == 10) {
                     return array(
                         'status' => true,
-                        'resultado' => $this->mascara($res, "(##) ####-####")
+                        'resultado' => $res
                     );
                 } else if (strlen($res) == 11) {
                     return array(
                         'status' => true,
-                        'resultado' => $this->mascara($res, "(##) #####-####")
+                        'resultado' => $res
                     );
                 }
 

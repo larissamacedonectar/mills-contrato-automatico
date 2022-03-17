@@ -1,0 +1,35 @@
+[
+    {
+        "module": "contacts",
+        "field": "first_name",
+        "limit": "5",
+        "email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "outros",
+        "page": "0"
+    },
+    {
+        "module": "contacts",
+        "field": "last_name",
+        "limit": "5",
+        "email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "outros",
+        "page": "0"
+    },
+    {
+        "module": "contacts",
+        "field": "phone_mobile",
+        "limit": "5",
+        "email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "telefone",
+        "page": "0"
+    },
+    {
+        "module": "contacts",
+        "field": "phone_work",
+        "limit": "5",
+        "email": "larissa.macedo@nectarconsulting.com.br",
+        "type": "telefone",
+        "page": "0"
+    }
+
+]
