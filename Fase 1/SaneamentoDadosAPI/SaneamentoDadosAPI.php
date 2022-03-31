@@ -12,7 +12,7 @@ class SaneamentoDadosAPI extends SugarApi
             //GET & POST
             'QuotesInfoEndpoint' => array(
                 //request type
-                'reqType' => array('POST'),
+                'reqType' => array('POST', 'GET'),
 
                 //set authentication
                 'noLoginRequired' => true,
