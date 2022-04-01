@@ -5,6 +5,14 @@ if(!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
 
 class validadorDados
 {    
+    function semCaracterEspecial($dado) {
+
+        return array(
+            'status' => true,
+            'resultado' => preg_replace('/[^a-zA-Z0-9 ]/', '', $dado )
+        );
+        
+    }
 
     function mascara($valor, $mascara){
 

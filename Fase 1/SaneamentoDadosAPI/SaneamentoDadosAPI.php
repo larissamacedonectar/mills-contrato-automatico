@@ -12,7 +12,7 @@ class SaneamentoDadosAPI extends SugarApi
             //GET & POST
             'QuotesInfoEndpoint' => array(
                 //request type
-                'reqType' => array('POST', 'GET'),
+                'reqType' => array('POST','GET'),
 
                 //set authentication
                 'noLoginRequired' => true,
@@ -47,19 +47,12 @@ class SaneamentoDadosAPI extends SugarApi
 		$email = $args["email"];
 		$page = $args["page"];
 		$type = $args["type"];
-		//$nb_elem_per_page = $args["numElement"];
-
-
-		$GLOBALS['log']->fatal("Module" . $module);
 
 		$connect_url = $GLOBALS['app_list_strings']['IMPORTACAO_FTP']['connect_url'];
 		$login = $GLOBALS['app_list_strings']['IMPORTACAO_FTP']['login'];
 		$password = $GLOBALS['app_list_strings']['IMPORTACAO_FTP']['password'];
 		$pasta = $GLOBALS['app_list_strings']['IMPORTACAO_FTP']['pasta_saneamento'];
 
-		//$arquivo = "saneamento_contacts.csv";
-		//$source = $pasta ."/saneamento_contacts.csv";
-		//$arquivo =  $pasta ."/saneamento_contacts.csv";
 
 		$typeModule = strpos($module, "accounts");
 		if ($typeModule === false) {
@@ -89,7 +82,7 @@ class SaneamentoDadosAPI extends SugarApi
 
 						$typeModule = strpos($module, "accounts");
 						if ($typeModule === false) {
-							$target = "saneamento_contacts";
+							$target = "saneamento_contacts.csv";
 						} else {
 							$target = "saneamento_accounts.csv";
 						}
@@ -124,10 +117,16 @@ class SaneamentoDadosAPI extends SugarApi
 		}
 
 		$cstm = strpos($module, "_cstm");
-		if ($cstm === false) {
-			$type_query = $db->query("SELECT id, " . $field . " FROM " . $module . " WHERE deleted != 1");
+		if($type == "email") {
+			$type_query = $db->query("SELECT bean_id, email_address FROM email_addresses addr
+										INNER JOIN email_addr_bean_rel addrBean ON (addr.id = addrBean.email_address_id)
+										WHERE  primary_address = 1 AND addr.deleted = 0");
 		} else {
-			$type_query = $db->query("SELECT id_c AS id, " . $field . " FROM " . $module . " WHERE deleted != 1");
+			if ($cstm === false) {
+				$type_query = $db->query("SELECT id, " . $field . " FROM " . $module . " WHERE deleted != 1");
+			} else {
+				$type_query = $db->query("SELECT id_c AS id, " . $field . " FROM " . $module . " WHERE deleted != 1");
+			}
 		}
 
 		while($row = $db->fetchByAssoc($type_query) )
@@ -154,6 +153,9 @@ class SaneamentoDadosAPI extends SugarApi
 
 		$GLOBALS['log']->fatal("COMEÇOU IMPORTAÇÃO");
 
+		$countSaneado = 0;
+		$countInvalido = 0;
+
 		array_shift($lines);
 		foreach (array_slice($lines, $page*$limit, $limit) as $line) {
 		//foreach($lines as $line) {
@@ -177,6 +179,8 @@ class SaneamentoDadosAPI extends SugarApi
 				$resultadoValidacao = $this->sanearCidade($dado);
 			} else if ($type == "estado") {
 				$resultadoValidacao = $this->sanearEstado($dado);
+			} else if ($type == "semCaracter") {
+				$resultadoValidacao = $this->sanearSemCaracter($dado);
 			} else {
 				$resultadoValidacao = array(
 					'status' => true,
@@ -187,28 +191,56 @@ class SaneamentoDadosAPI extends SugarApi
 			$GLOBALS['log']->fatal("resultadoValidacao:" . print_r($resultadoValidacao, True));
 
 			if ($resultadoValidacao["status"] == true) {
-				if($cstm == false) {
-					$GLOBALS['log']->fatal("UPDATE " . $module . " SET " . $field . " = '" . $dado . "' WHERE id = '$id'");
-					$db->query("UPDATE " . $module . " SET " . $field . " = '" . $dado . "' WHERE id = '$id'");
+
+				if($type == "email") {
+					$update = "UPDATE email_addresses addr
+								INNER JOIN email_addr_bean_rel addrBean ON (addr.id = addrBean.email_address_id)
+								SET email_address = '" . $dado . "', email_address_caps =  upper(' " . $dado . "')
+								WHERE bean_id = '" . $id . "' AND primary_address = 1
+								AND addr.deleted = 0";
+					$db->query($update);
+
 				} else {
-					$GLOBALS['log']->fatal("UPDATE " . $module . " SET " . $field . " = '" . $dado . "' WHERE id_c = '$id'");
-					$db->query("UPDATE " . $module. " SET " . $field . " = '" . $dado . "' WHERE id_c = '$id'");
+					if($cstm == false) {
+						$GLOBALS['log']->fatal("UPDATE " . $module . " SET " . $field . " = '" . $resultadoValidacao["resultado"] . "' WHERE id = '$id'");
+						$db->query("UPDATE " . $module . " SET " . $field . " = '" . $resultadoValidacao["resultado"] . "' WHERE id = '$id'");
+					} else {
+						$GLOBALS['log']->fatal("UPDATE " . $module . " SET " . $field . " = '" . $resultadoValidacao["resultado"] . "' WHERE id_c = '$id'");
+						$db->query("UPDATE " . $module. " SET " . $field . " = '" . $resultadoValidacao["resultado"] . "' WHERE id_c = '$id'");
+					}
 				}
+				$countSaneado++;
 			} else {
 				$log .= $id . " - " . $resultadoValidacao["resultado"];
 				$log .= "<br>";
+				$countInvalido++;
 			}
 			
 		}
 
 		if(!empty($log)){
+
+			$typeModule = strpos($module, "accounts");
+				if ($typeModule === false) {
+					$assunto = "Status Saneamento Contatos - Campo " . $field;
+				} else {
+					$assunto = "Status Saneamento Contas - Campo " . $field;
+				}
 			
-			$result = $this->EnviaEmail_Mailer(array($email), $log, "Status Saneamento");
-			$GLOBALS['log']->fatal("Envio Email: " . $result);
+			$this->EnviaEmail_Mailer(array($email), $log, $assunto);
+
 		}
-		
+
+		$bodyResul = "  <p><strong>Resultado do Saneamento - Coluna ". $field ." - Tipo ". $type ." </strong></p>
+		<p>Registros processados:&nbsp;" . $limit . "</p>
+		<p>Quantidade saneados:&nbsp;" . $countSaneado . "</p>
+		<p>Quantidade Inv&aacute;lidos:&nbsp;" . $countInvalido . "</p>";
+
+		$this->EnviaEmail_Mailer(array($email),$bodyResul, "Resultado do Saneamento");
+
 		$GLOBALS['log']->fatal("TERMNOU IMPORTAÇÃO");
-		return $log; 																							  
+
+		return $bodyResul; 																							  
 
 	}
 
@@ -221,6 +253,15 @@ class SaneamentoDadosAPI extends SugarApi
 		$line = str_replace("'","\'",$line);
 
 		return explode($fieldseparator,$line);
+	}
+
+	function sanearSemCaracter($dado){
+
+		require_once 'custom/Saneamento/ValidadorDados/validadorDados.php';
+
+		$saneamentoSemCaracter = new validadorDados;
+		return $saneamentoSemCaracter->semCaracterEspecial($dado);
+
 	}
 
 	function sanearCNPJ($cnpj){
@@ -259,16 +300,11 @@ class SaneamentoDadosAPI extends SugarApi
 	}
 
 	function sanearCidade($idCidade){
-		$GLOBALS['log']->fatal('Fatal level message 1');
 
 		global $db;
-		$GLOBALS['log']->fatal('Fatal level message 2');
 		$select = "SELECT count(*) AS ct FROM it4_cidades WHERE id = '$idCidade' AND deleted = 0";
-		$GLOBALS['log']->fatal('Fatal level message 3' . $select);
 		$res = $db->query($select);
-		$GLOBALS['log']->fatal('Fatal level message 4');
 		$row = $db->fetchByAssoc($res);
-		$GLOBALS['log']->fatal('Fatal level message 5');
 		
 		if($row["ct"] == 0) {
 			return array(
