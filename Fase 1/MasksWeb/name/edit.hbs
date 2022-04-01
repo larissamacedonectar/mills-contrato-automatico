@@ -1,0 +1,12 @@
+<input type="name"
+name="{{name}}"
+value="{{value}}"
+{{#if def.len}}maxlength="{{def.len}}"{{/if}}
+{{#if def.placeholder}}placeholder="{{str def.placeholder this.model.module}}"{{/if}}
+class="inherit-width"
+{{#eq name 'name'}}
+onkeyup="mascara(this,mascara_name_contas);"
+{{/eq}}
+{{#eq action 'disabled'}} disabled{{/eq}}>
+<p class="help-block">
+<script type="text/javascript" src="custom/masks3/mask.js"></script>

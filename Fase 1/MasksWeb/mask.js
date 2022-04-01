@@ -17,7 +17,7 @@ function mascara_cnpj(obj) {
         v = v.replace(/\.(\d{3})(\d)/,".$1/$2"); // Coloca uma barra entre o oitavo e o nono dígitos
         v = v.replace(/(\d{4})(\d)/,"$1-$2"); // Coloca um hífen depois do bloco de quatro dígitos
         //v = v.replace(/^(\d{2})(\d{3})?(\d{3})?(\d{4})?(\d{2})?/, "$1.$2.$3/$4-$5");
-        v = v.substring(0, 17);
+        v = v.substring(0, 18);
     }  
     return v;
 }
@@ -32,7 +32,7 @@ function mascara_cep(obj) {
         obj.name == 'alt_address_postalcode') {
 
         v = v.replace(/^(\d{5})(\d{3})?/, "$1-$2");
-        v = v.substring(0, 8);
+        v = v.substring(0, 9);
     }
     return v;
 }
@@ -48,12 +48,12 @@ function mascara_fone(obj) {
 
         v = v.replace(/^(\d{2})(\d)/g,"($1) $2");//Coloca parênteses em volta dos dois primeiros dígitos
 				
-        if(v.length <= 12)
+        if(v.length <= 13)
         {
             //console.log('1: O valor de v é ' + v + 'seu tamanho é ' + v.length);
             v = v.replace(/(\d{4})(\d)/g,"$1-$2");//Número com 8 dígitos. Formato: (99) 9999-9999
             //console.log('2: O valor de v é ' + v + 'seu tamanho é ' + v.length);
-            v = v.substring(0, 13);
+            v = v.substring(0, 14);
             //console.log('3: O valor de v é ' + v + 'seu tamanho é ' + v.length);
         }
         else
@@ -61,9 +61,31 @@ function mascara_fone(obj) {
             //console.log('4: O valor de v é ' + v + 'seu tamanho é ' + v.length);
             v = v.replace(/(\d{5})(\d)/g,"$1-$2");//Número com 9 dígitos. Formato: (99) 99999-9999
             //console.log('5: O valor de v é ' + v + 'seu tamanho é ' + v.length);
-            v = v.substring(0, 14);
+            v = v.substring(0, 15);
             //console.log('6: O valor de v é ' + v + 'seu tamanho é ' + v.length);
         }  
     }
     return v;
+}
+
+function mascara_name_contas(obj) {
+
+    v = obj.value;
+    //console.log('O valor de v é ' + v);
+    v_sem_especial = v.replace(/[^a-zA-Z0-9 ]/g, '');
+    //console.log('O valor de v_sem_especial é ' + v_sem_especial);
+    v_sem_especial_tudo_maiuscula = v_sem_especial.toUpperCase();
+    //console.log('O valor de v_sem_especial_tudo_maiúscula é ' + v_sem_especial_tudo_maiuscula);
+
+    return v_sem_especial_tudo_maiuscula;
+}
+
+function mascara_name_contatos(obj) {
+
+    v = obj.value;
+    //console.log('O valor de v é ' + v);
+    v_sem_especial = v.replace(/[^a-zA-Z ]/g, '');
+    //console.log('O valor de v_sem_especial é ' + v_sem_especial);
+
+    return v_sem_especial;
 }

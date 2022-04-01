@@ -35,8 +35,12 @@ $installdefs = array(
             'to' => 'custom/modules/Accounts/clients/base/fields/phone/edit.hbs',
         ),
         array(
+            'from' => '<basepath>/name/edit.hbs',
+            'to' => 'custom/modules/Accounts/clients/base/fields/name/edit.hbs',
+        ),
+        array(
             'from' => '<basepath>/mask.js',
-            'to' => 'custom/mask/mask.js',
+            'to' => 'custom/masks3/mask.js',
         ),
     ),
 );
