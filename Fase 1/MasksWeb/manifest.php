@@ -10,6 +10,7 @@ $manifest = array(
     'name' => 'MasksWeb',
     'description' => 'Formatação de campos de CNPJ, CEP e Telefone nas telas de criação e edição (Web) de registro de Contas (Accounts) e Contatos (Contacts).',
     'is_uninstallable' => true,
+    'published_date' => date('Y-m-d h:i:s'),
     'type' => 'module',
     'version' => '1.0',
     'key' => 'MasksWeb',
