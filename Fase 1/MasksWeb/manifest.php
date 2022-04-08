@@ -40,7 +40,7 @@ $installdefs = array(
         ),
         array(
             'from' => '<basepath>/mask.js',
-            'to' => 'custom/masks3/mask.js',
+            'to' => 'custom/masks/mask.js',
         ),
     ),
 );
