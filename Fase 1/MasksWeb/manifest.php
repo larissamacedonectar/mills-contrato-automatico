@@ -8,7 +8,7 @@ $manifest = array(
     ),
     'author' => 'Néctar Consulting - Lucas Albero & Silvio Antunes',
     'name' => 'MasksWeb',
-    'description' => 'Formatação de campos de CNPJ, CEP e Telefone na tela de edição de registro de Contas (Accounts) e Contatos (Contacts).',
+    'description' => 'Formatação de campos de CNPJ, CEP e Telefone nas telas de criação e edição (Web) de registro de Contas (Accounts) e Contatos (Contacts).',
     'is_uninstallable' => true,
     'type' => 'module',
     'version' => '1.0',
