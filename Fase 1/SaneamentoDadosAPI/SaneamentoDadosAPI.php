@@ -12,7 +12,7 @@ class SaneamentoDadosAPI extends SugarApi
             //GET & POST
             'QuotesInfoEndpoint' => array(
                 //request type
-                'reqType' => array('POST'),
+                'reqType' => array('POST','GET'),
 
                 //set authentication
                 'noLoginRequired' => true,
@@ -82,7 +82,7 @@ class SaneamentoDadosAPI extends SugarApi
 
 						$typeModule = strpos($module, "accounts");
 						if ($typeModule === false) {
-							$target = "saneamento_contacts";
+							$target = "saneamento_contacts.csv";
 						} else {
 							$target = "saneamento_accounts.csv";
 						}
@@ -202,11 +202,11 @@ class SaneamentoDadosAPI extends SugarApi
 
 				} else {
 					if($cstm == false) {
-						$GLOBALS['log']->fatal("UPDATE " . $module . " SET " . $field . " = '" . $dado . "' WHERE id = '$id'");
-						$db->query("UPDATE " . $module . " SET " . $field . " = '" . $dado . "' WHERE id = '$id'");
+						$GLOBALS['log']->fatal("UPDATE " . $module . " SET " . $field . " = '" . $resultadoValidacao["resultado"] . "' WHERE id = '$id'");
+						$db->query("UPDATE " . $module . " SET " . $field . " = '" . $resultadoValidacao["resultado"] . "' WHERE id = '$id'");
 					} else {
-						$GLOBALS['log']->fatal("UPDATE " . $module . " SET " . $field . " = '" . $dado . "' WHERE id_c = '$id'");
-						$db->query("UPDATE " . $module. " SET " . $field . " = '" . $dado . "' WHERE id_c = '$id'");
+						$GLOBALS['log']->fatal("UPDATE " . $module . " SET " . $field . " = '" . $resultadoValidacao["resultado"] . "' WHERE id_c = '$id'");
+						$db->query("UPDATE " . $module. " SET " . $field . " = '" . $resultadoValidacao["resultado"] . "' WHERE id_c = '$id'");
 					}
 				}
 				$countSaneado++;
@@ -231,7 +231,11 @@ class SaneamentoDadosAPI extends SugarApi
 
 		}
 
+<<<<<<< HEAD
 		$bodyResul = "  <p><strong>Resultado do Saneamento</strong></p>
+=======
+		$bodyResul = "  <p><strong>Resultado do Saneamento - Coluna ". $field ." - Tipo ". $type ." </strong></p>
+>>>>>>> 8cdecd3130adb43646837818c4ef4613ce24f37a
 		<p>Registros processados:&nbsp;" . $limit . "</p>
 		<p>Quantidade saneados:&nbsp;" . $countSaneado . "</p>
 		<p>Quantidade Inv&aacute;lidos:&nbsp;" . $countInvalido . "</p>";

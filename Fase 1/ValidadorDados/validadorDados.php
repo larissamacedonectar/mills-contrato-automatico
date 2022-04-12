@@ -9,7 +9,7 @@ class validadorDados
 
         return array(
             'status' => true,
-            'resultado' => preg_replace('/[^\p{L}\p{N}\s]/', '', $dado )
+            'resultado' => preg_replace('/[^a-zA-Z0-9 ]/', '', $dado )
         );
         
     }
@@ -137,7 +137,7 @@ class validadorDados
 
                         return array(
                             'status' => true,
-                            'resultado' => $res
+                            'resultado' => $this->mascara($res, "##.###.###/####-##") 
                         );
                     }
             }
@@ -182,7 +182,7 @@ class validadorDados
 
                 return array(
                     'status' => true,
-                    'resultado' => $res
+                    'resultado' => $this->mascara($res, "#####-###")
                 );
             }
     }
@@ -227,12 +227,12 @@ class validadorDados
                 if(strlen($res) == 10) {
                     return array(
                         'status' => true,
-                        'resultado' => $res
+                        'resultado' => $this->mascara($res, "(##) ####-####")
                     );
                 } else if (strlen($res) == 11) {
                     return array(
                         'status' => true,
-                        'resultado' => $res
+                        'resultado' => $this->mascara($res, "(##) #####-####")
                     );
                 }
 

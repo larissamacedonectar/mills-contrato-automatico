@@ -1,0 +1,66 @@
+{
+	"info": {
+		"_postman_id": "116f2a5d-3773-4fc9-a4b1-e3c8ec0f829f",
+		"name": "Mills - Contrato Automatico - SAP vs Sugar",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Conta",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"IDConta\": \"787c4c64-a53a-11ec-b195-02df47d122c6\",\r\n    \"rua\": \"TESTE 1\",\r\n    \"cep\": \"06719052\",\r\n    \"pais\": \"BR\",\r\n    \"telefone\": \"977759239\",\r\n    \"telefone_alternativo\": \"111\",\r\n    \"emails\": [\r\n        \"teste@teste.com.br\",\r\n        \"teste2222@teste.com.br\"\r\n    ],\r\n    \"cod_sap\": \"\",\r\n    \"numero\": \"1\",\r\n    \"complemento\": \"1\",\r\n    \"bairro\": \"Teste\",\r\n    \"cidade\": \"SP\",\r\n    \"estado\": \"SP\",\r\n    \"forma_pagamento\": \"1\",\r\n    \"inscricao_estadual\": \"123\",\r\n    \"inscricao_municipal\": \"124\",\r\n    \"cnae\": \"12\",\r\n    \"contribuinte\": 1,\r\n    \"sap_integrou_sugar\": true\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/rest/v11_10/RetornoContaSAP_API",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"rest",
+						"v11_10",
+						"RetornoContaSAP_API"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Crédito",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"IDConta\": \"787c4c64-a53a-11ec-b195-02df47d122c6\",\r\n    \"rating\": \"Teste\",\r\n    \"dt_integracao_cred_sap\": \"2022-04-08 09:48:00\",\r\n    \"conta_credito\": \"Teste de Conta\",\r\n    \"dt_ultima_verificacao\": \"2022-04-08 09:48:00\",\r\n    \"limit_total_credito\": \"200.00\",\r\n    \"credito_disponivel\": \"10.00\",\r\n    \"credito_compromissado\": \"5.00\",\r\n    \"a_Receber\": \"1.00\",\r\n    \"a_Vender\": \"10.00\",\r\n    \"vencido_cobrança\": \"10,00\",\r\n    \"vencido_credito\": \"10,00\",\r\n    \"total_vencido\": \"1.0\",\r\n    \"inadimplente_credito\": 1,\r\n    \"inadimplente_cobranca\": \"\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{base_url}}/rest/v11_10/RetornoContaSAP_API/Credito",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"rest",
+						"v11_10",
+						"RetornoContaSAP_API",
+						"Credito"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
