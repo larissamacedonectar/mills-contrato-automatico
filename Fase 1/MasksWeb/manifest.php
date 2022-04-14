@@ -35,10 +35,10 @@ $installdefs = array(
             'from' => '<basepath>/phone/edit.hbs',
             'to' => 'custom/modules/Accounts/clients/base/fields/phone/edit.hbs',
         ),
-        array(
+        /*array(
             'from' => '<basepath>/name/edit.hbs',
             'to' => 'custom/modules/Accounts/clients/base/fields/name/edit.hbs',
-        ),
+        ),*/ //desativado, pois a validação da Receita deve predominar.
         array(
             'from' => '<basepath>/mask.js',
             'to' => 'custom/masks/mask.js',
