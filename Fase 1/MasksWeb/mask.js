@@ -58,14 +58,6 @@ function mascara_fone(obj) {
     }
     return v;
 }
-function mascara_name_contas(obj) {
-
-    v = obj.value;
-    v_sem_especial = v.replace(/[^a-zA-Z0-9 ]/g, '');
-    v_sem_especial_tudo_maiuscula = v_sem_especial.toUpperCase();
-
-    return v_sem_especial_tudo_maiuscula;
-}
 function mascara_name_contatos(obj) {
 
     v = obj.value;
