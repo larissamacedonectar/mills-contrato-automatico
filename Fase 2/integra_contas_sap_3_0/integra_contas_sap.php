@@ -85,7 +85,8 @@
 					$estado != $bean->estado_old OR 
 					$bean->billing_address_postalcode != $bean->stored_fetched_row_c['billing_address_postalcode'] OR
 					$bean->phone_office != $bean->stored_fetched_row_c['phone_office'] OR
-					$bean->phone_alternate != $bean->stored_fetched_row_c['phone_alternate'] //volta do phone_alternate;
+					$bean->phone_alternate != $bean->stored_fetched_row_c['phone_alternate'] OR
+					$bean->segmentacao_gtm_c != $bean->stored_fetched_row_c['segmentacao_gtm_c']//volta do phone_alternate;
 					//retirada do campo Outros Telefones, inscrições estadual e municipal entre outros do disparo de
 					//atualização - Silvio - 13/04/2022 - CA
 					)
@@ -280,7 +281,6 @@
 			} else {
 				$insc_estadual = preg_replace('/[^0-9]/', '', (string) $bean->im_c);
 			}
-			 
 			
 			$cidade_bean = BeanFactory::retrieveBean("iT4_cidades", $bean->it4_cidades_id_c);
 			$cidade = $cidade_bean->name;
@@ -289,6 +289,10 @@
 			//o campo "outros telefones"[nome_do_projeto_c] é usado como telefone alternativo ao invés de phone_alternate
 			//CA - Silvio Antunes - 12/4/2022 - phone_alternate volta a ser utilizado e teremos um array para primeira
 			//integração no SAP (criação) e outro para integrações subsequentes (modificação) - interface I.
+
+			$grupo_cliente_SAP = $GLOBALS['app_list_strings']['grupo_cliente_SAP_list']; //Faz o DE/PARA entre grupo_cliente_SAP_list
+			//e segmentacao_gtm_list.
+
 
 			if($bean->codsap_c != "" OR !empty($bean->codsap_c))
 			{
@@ -307,6 +311,7 @@
 					"telefone_alternativo" => $bean->phone_alternate,
 					"codigo_sap" => $bean->codsap_c,
 					"id_sugar" => $bean->id,
+					"grupo_cliente" => $grupo_cliente_SAP[$bean->segmentacao_gtm_c],
 					"grupo_contas" => "ZPJU"
 				);
 			}
@@ -334,6 +339,7 @@
 					"cnae" => $bean->cnae_c,
 					"contribuinte" => $bean->contribuinte_c,
 					"porte_receita" => $bean->porte_receita_c,
+					"grupo_cliente" => $grupo_cliente_SAP[$bean->segmentacao_gtm_c],
 					"grupo_contas" => "ZPJU"
 				);
 			}
