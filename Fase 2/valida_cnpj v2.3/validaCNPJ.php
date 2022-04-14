@@ -8,6 +8,78 @@ require_once('include/SugarLogger/LoggerManager.php');
     
 class ValidaCNPJ {
 
+    function validadorIE(&$bean, $event, $arguments) { //Projeto Contrato Automático - 07/04/2022 - Silvio Antunes
+
+        $bean->flag = false;
+        // A flag acima será utilizada quando da validação do CNPJ, no método validadorCNPJ, nesta mesma classe.
+
+        if ($bean->im_c != $bean->fetched_row['im_c']) { // Checa se a IE está sendo alterada (modificação) ou preenchida (criação).
+            
+            $GLOBALS["log"]->fatal("--------- início Valida IE ---------");
+            
+            if ($bean->im_c != null && $bean->im_c != ''){ // Se o valor de IE passado não estiver vazio.
+
+                $cnpj_formatado = preg_replace( '/[^0-9]/is', '', $bean->cnpj_c); // Remove todos os caracteres que não sejam números.
+				$cnpj = $this->mask($cnpj_formatado, '##.###.###/####-##'); // Aplica a máscara padrão de CNPJ.
+                $ie = $bean->im_c;
+
+                $GLOBALS["log"]->fatal("CNPJ: " . $cnpj);
+                $GLOBALS["log"]->fatal("IE: " . $ie);
+
+                $conn = $GLOBALS['db']->getConnection();
+				$sql = 'SELECT id, name, team_id, cnpj_c, im_c
+						FROM accounts
+						INNER JOIN accounts_cstm
+							ON id = id_c
+						WHERE cnpj_c = ? AND im_c = ?
+						AND deleted = 0';
+				$stmt = $conn->executeQuery($sql, array($cnpj, $ie));
+				$results_ie = $stmt->fetch();
+
+                if($results_ie != null) //Se houver já uma conta sob o CNPJ e a IE inseridos.
+                {
+                    throw new SugarApiExceptionInvalidParameter("Já existe uma conta cadastrada com este CNPJ e com esta IE. Tente um outro CNPJ e/ou uma outra IE.");
+                }
+                else
+                {
+                    $conn = $GLOBALS['db']->getConnection();
+                    $sql = 'SELECT id, name, team_id, cnpj_c, im_c
+						FROM accounts
+						INNER JOIN accounts_cstm
+							ON id = id_c
+						WHERE cnpj_c = ?
+						AND deleted = 0';
+                    $stmt = $conn->executeQuery($sql, array($cnpj));
+                    $results_cnpj = $stmt->fetch();
+
+                    $temacesso = false;
+                    global $current_user;
+
+                    require_once('modules/ACLRoles/ACLRole.php');
+
+                    // Somente a equipe de Backoffice ou os administradores do sistema
+                    // poderão cadastrar duplicatas de conta com mesmo CNPJ e IEs distintas.
+                    
+                    $currentUserRoles = ACLRole::getUserRoleNames($current_user->id);
+                    $validRoles = $GLOBALS['app_list_strings']['BACKOFFICE_ROLES'];
+                    $matchingRoles = array_intersect($currentUserRoles, $validRoles);
+
+                    if($current_user->isAdmin() || count($matchingRoles) > 0)
+                        $temacesso = true; // Flag para validar o acesso.
+
+                    if($results_cnpj != null) // Há conta com o mesmo CNPJ, mas com uma outra IE cadastrada (que pode ser vazia, inclusive).
+                    {
+                        $conta = BeanFactory::retrieveBean('Accounts', $results_cnpj['id']); // A tal conta.
+                        $bean->flag = true;
+
+                        if(!$temacesso)
+                            throw new SugarApiExceptionInvalidParameter("Somente a equipe de Backoffice ou administradores podem cadastrar uma conta com CNPJ já existente, mas IE diferente.");
+                    }
+                }
+            }
+        }
+    }
+
     function validadorCNPJ(&$bean, $event, $arguments) {
 
         if($bean->cnpj_c != $bean->fetched_row['cnpj_c']){
@@ -60,6 +132,9 @@ class ValidaCNPJ {
 				$results = $stmt->fetch();
     
                 if($results != null && $bean->flag == false){
+                    // Projeto Contrato Automático - 07/04/2022 - Silvio Antunes
+                    // A variável $bean->flag foi incluída para que a inserção de CNPJs
+                    // já existentes com novas IEs não dispare a exception logo abaixo.
 					$sql = 'SELECT name
 							FROM teams
 							WHERE id = ?';
@@ -288,7 +363,7 @@ class ValidaCNPJ {
                                         $bean->billing_address_street = $data->endereco->logradouro;
                                         $bean->billing_address_number_c = $data->endereco->numero;
                                         $bean->billing_address_add_c = $data->endereco->complemento;
-                                        $bean->billing_address_postalcode = $data->endereco->cep;
+                                        $bean->billing_address_postalcode = $this->mask($data->endereco->cep, '#####-###');
                                         $bean->billing_address_quarter_c = $data->endereco->bairro;
                                         
                                         
@@ -359,87 +434,6 @@ class ValidaCNPJ {
 
             $GLOBALS["log"]->fatal("--------- fim Valida CNPJ ---------");
         }    
-    }
-
-    function validadorIE(&$bean, $event, $arguments) {
-
-        $bean->flag = false;
-
-        if ($bean->im_c != $bean->fetched_row['im_c']) {
-            
-            $GLOBALS["log"]->fatal("--------- início Valida IE ---------");
-            
-            if ($bean->im_c != null && $bean->im_c != ''){
-
-                $cnpj_formatado = preg_replace( '/[^0-9]/is', '', $bean->cnpj_c); // Remove todos os caracteres que não sejam números.
-				$cnpj = $this->mask($cnpj_formatado, '##.###.###/####-##'); // Aplica a máscara padrão de CNPJ.
-                
-                $ie = $bean->im_c;
-
-                $GLOBALS["log"]->fatal("CNPJ: " . $cnpj);
-                $GLOBALS["log"]->fatal("IE: " . $ie);
-
-                $conn = $GLOBALS['db']->getConnection();
-				$sql = 'SELECT id, name, team_id, cnpj_c, im_c
-						FROM accounts
-						INNER JOIN accounts_cstm
-							ON id = id_c
-						WHERE cnpj_c = ? AND im_c = ?
-						AND deleted = 0';
-				$stmt = $conn->executeQuery($sql, array($cnpj, $ie));
-				$results_ie = $stmt->fetch();
-
-                if($results_ie != null) //se houver já uma conta sob o CNPJ e a IE inseridas
-                {
-                    throw new SugarApiExceptionInvalidParameter("Já existe uma conta cadastrada com este CNPJ e com esta IE. Tente um outro CNPJ e/ou uma outra IE.");
-                }
-                else //se não houver
-                {
-                    $conn = $GLOBALS['db']->getConnection();
-                    $sql = 'SELECT id, name, team_id, cnpj_c, im_c
-						FROM accounts
-						INNER JOIN accounts_cstm
-							ON id = id_c
-						WHERE cnpj_c = ?
-						AND deleted = 0';
-                    $stmt = $conn->executeQuery($sql, array($cnpj));
-                    $results_cnpj = $stmt->fetch();
-
-                    $temacesso = false;
-                    global $current_user;
-
-                    require_once('modules/ACLRoles/ACLRole.php');
-                    
-                    $currentUserRoles = ACLRole::getUserRoleNames($current_user->id);
-                    $validRoles = $GLOBALS['app_list_strings']['BACKOFFICE_ROLES'];
-                    $matchingRoles = array_intersect($currentUserRoles, $validRoles);
-
-                    if($current_user->isAdmin() || count($matchingRoles) > 0)
-                    {
-                        $temacesso = true;
-                    }
-
-                    if($results_cnpj != null) //há conta com o mesmo CNPJ, mas com uma outra IE cadastrada (pode ser vazia)
-                    {
-                        $conta = BeanFactory::retrieveBean('Accounts', $results_cnpj['id']); // a tal conta
-                        $bean->flag = true;
-
-                        if(!$temacesso)
-                        {
-                            throw new SugarApiExceptionInvalidParameter("Somente a equipe de Backoffice ou administradores podem cadastrar uma conta com CNPJ já existente, mas IE diferente.");
-                        }
-
-                        /*if($conta->im_c != null && $conta->im_c != '')
-                        {
-
-                        }*/
-                    }
-                    else //não há nenhuma conta já existente com o CNPJ inserido; não faz sentido validar a IE
-                    {
-                    }
-                }
-            }
-        }
     }
 	
 	// Função copiada de "./custom/modules/Accounts/accounts_sis.php"
