@@ -85,11 +85,13 @@
 
                 // SIS API Connect
                 $GLOBALS['log']->fatal('Começando a conexão com o SIS');
-				if (strpos($GLOBALS['sugar_config']['site_url'], 'https://solarisbrasil.sugarondemand.com') > -1) {
+				/*if (strpos($GLOBALS['sugar_config']['site_url'], 'https://solarisbrasil.sugarondemand.com') > -1) {
 					$wsURLBase = "http://sys.solarisbrasil.com.br/SIS/webservice/wsSIS.asmx?WSDL";
 				} else {
-					$wsURLBase = "https://sis-qas.mills.com.br/webservice/wsSIS.asmx?WSDL";
-				}
+					$wsURLBase = "http://sisqa.solarisbrasil.com.br/sis/webservice/wsSIS.asmx?WSDL";
+				}*/
+                //TK-076-000248 - Apontamento de integração para o Sis - Pegando URL via lista suspensa - Maria Mattos 22/02/2022
+                $wsURLBase = $GLOBALS['app_list_strings']['MIDDLEWARE']['urlSIS'];
 				
                 $client = new SoapClient($wsURLBase, array(
                     "trace" => 1,
