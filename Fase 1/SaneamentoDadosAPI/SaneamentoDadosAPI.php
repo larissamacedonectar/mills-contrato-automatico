@@ -231,11 +231,7 @@ class SaneamentoDadosAPI extends SugarApi
 
 		}
 
-<<<<<<< HEAD
-		$bodyResul = "  <p><strong>Resultado do Saneamento</strong></p>
-=======
 		$bodyResul = "  <p><strong>Resultado do Saneamento - Coluna ". $field ." - Tipo ". $type ." </strong></p>
->>>>>>> 8cdecd3130adb43646837818c4ef4613ce24f37a
 		<p>Registros processados:&nbsp;" . $limit . "</p>
 		<p>Quantidade saneados:&nbsp;" . $countSaneado . "</p>
 		<p>Quantidade Inv&aacute;lidos:&nbsp;" . $countInvalido . "</p>";
