@@ -84,7 +84,6 @@ class RetornoContaSAP_API extends SugarApi
             $cnae_c = $args["cnae"];
             $contribuinte_c = $args["contribuinte"];
             $data_integr_int_ii_c = $args["sap_integrou_sugar"];
-            $grupo_clientes_c = $args["grupo_cliente"];
 
             // Passando pelo saneaemento
             
@@ -166,8 +165,7 @@ class RetornoContaSAP_API extends SugarApi
                                             imunicipal_c = '$imunicipal_c',
                                             cnae_c = '$cnae_c',
                                             contribuinte_c = '$contribuinte_c',
-                                            data_integr_int_ii_c = '$data_integr_int_ii_c',
-                                            grupo_clientes_c = '$grupo_clientes_c'
+                                            data_integr_int_ii_c = '$data_integr_int_ii_c'
                                        WHERE id_c = '$id'";
                 $db->query($update_contas_cstm);
     
