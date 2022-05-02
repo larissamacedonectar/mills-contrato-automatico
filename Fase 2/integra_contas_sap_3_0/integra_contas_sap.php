@@ -298,6 +298,7 @@
 			{
 				$account = array(
 					"nome_1"=> $bean->name,
+					"cnpj"=> $cnpj, // Necessário enviar para o SAP
 					"emails"=> $emails,
 					"rua" => $this->replace($bean->billing_address_street),
 					"numero" => $bean->billing_address_number_c,
@@ -312,6 +313,11 @@
 					"codigo_sap" => $bean->codsap_c,
 					"id_sugar" => $bean->id,
 					"grupo_cliente" => $grupo_cliente_SAP[$bean->segmentacao_gtm_c],
+
+					"inscricao_municipal" => $insc_municipal, // Retirar após o SAP subir a próxima versão
+					"setorindustrial" => "0001", // Retirar após o SAP subir a próxima versão
+					"cod_ind" => "9999", // Retirar após o SAP subir a próxima versão
+
 					"grupo_contas" => "ZPJU"
 				);
 			}
@@ -338,8 +344,12 @@
 					"forma_de_pagamento" => $bean->forma_de_pagamento_c,
 					"cnae" => $bean->cnae_c,
 					"contribuinte" => $bean->contribuinte_c,
-					"porte_receita" => $bean->porte_receita_c,
+					//"porte_receita" => $bean->porte_receita_c,
 					"grupo_cliente" => $grupo_cliente_SAP[$bean->segmentacao_gtm_c],
+
+					"setorindustrial" => "0001", // Retirar após o SAP subir a próxima versão
+					"cod_ind" => "9999", // Retirar após o SAP subir a próxima versão
+
 					"grupo_contas" => "ZPJU"
 				);
 			}

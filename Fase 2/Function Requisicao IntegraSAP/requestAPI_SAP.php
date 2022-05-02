@@ -9,12 +9,25 @@ class requestAPI_SAP_class
 		
 		global $GLOBALS;
 
-        $GLOBALS['log']->fatal('JSON enviado SAP: ' . $params);
+        $auth = $this->autenticaMiddleware();
 
-        if ($type == "PROP") {
-            $url = $GLOBALS["app_list_strings"]['MIDDLEWARE']['urlPROP'];
-        } else {
-            $url = $GLOBALS["app_list_strings"]['MIDDLEWARE']['urlDADOSMESTRES'];
+        if(!empty($auth)) {
+
+            if ($type == "PROP") {
+                $url = $GLOBALS["app_list_strings"]['MIDDLEWARE']['urlPROP_NOVO'];
+            } else {
+                $url = $GLOBALS["app_list_strings"]['MIDDLEWARE']['urlDADOSMESTRES_NOVO'];
+            }
+
+        } else{
+            $GLOBALS['log']->fatal('JSON enviado SAP: ' . $params);
+
+            if ($type == "PROP") {
+                $url = $GLOBALS["app_list_strings"]['MIDDLEWARE']['urlPROP'];
+            } else {
+                $url = $GLOBALS["app_list_strings"]['MIDDLEWARE']['urlDADOSMESTRES'];
+            }
+            
         }
 
         $curl = curl_init();
@@ -30,7 +43,7 @@ class requestAPI_SAP_class
         CURLOPT_CUSTOMREQUEST => 'POST',
         CURLOPT_POSTFIELDS => $params,
         CURLOPT_HTTPHEADER => array(
-            'Authorization: Bearer pXlVzxYOAWPg4E4myuvL5HX7uQQCuWFUJFMUEeuSFKyEdfD1XIB_QJ1Tw7A6oL_PU0IVa89gLZxdl-7cd2vBshkpVbdU88qB2AUHudPP2b6FNV-N_Si3EUKVY9r_CWpq_DGC0lcAbu82JNgRTZzCQh4JoTp5fPOcyfRRGS0',
+            'Authorization: Bearer ' . $auth,
             'Content-Type: application/json'
           ),
         ));
@@ -38,6 +51,9 @@ class requestAPI_SAP_class
         $response = curl_exec($curl);
 
         $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $GLOBALS['log']->fatal('Curl success: HTTP Status: ' . print_r($response, True));
+        $GLOBALS['log']->fatal('Curl success: HTTP URL: ' . $url );
+
         switch (true) {
             case  ($http_status >= 100 && $http_status <= 199):
                 $GLOBALS['log']->fatal('Curl success: Respostas de informação: ' . $http_status);
@@ -55,10 +71,42 @@ class requestAPI_SAP_class
                 $status = true;
                 break;
             case  ($http_status >= 400 && $http_status <= 499 ):
-                $GLOBALS['log']->fatal('Curl error:  Erros do cliente: ' . $http_status);
-                $GLOBALS['log']->fatal('Curl error: JSON: ' . $response);
-                $status = false;
-                $this->errorConnectionAPI($id, $type);
+
+                if ($type == "PROP") {
+                    $url_tentativa_2 = $GLOBALS["app_list_strings"]['MIDDLEWARE']['urlPROP'];
+                } else {
+                    $url_tentativa_2 = $GLOBALS["app_list_strings"]['MIDDLEWARE']['urlDADOSMESTRES'];
+                }
+    
+                $curl_tentativa_2 = curl_init();
+                curl_setopt_array($curl_tentativa_2, array(
+                CURLOPT_URL => $url_tentativa_2,
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => 'POST',
+                CURLOPT_POSTFIELDS => $params,
+                CURLOPT_HTTPHEADER => array(
+                    "Authorization"=> 'Bearer pXlVzxYOAWPg4E4myuvL5HX7uQQCuWFUJFMUEeuSFKyEdfD1XIB_QJ1Tw7A6oL_PU0IVa89gLZxdl-7cd2vBshkpVbdU88qB2AUHudPP2b6FNV-N_Si3EUKVY9r_CWpq_DGC0lcAbu82JNgRTZzCQh4JoTp5fPOcyfRRGS0', 
+                    'Content-Type: application/json'
+                  ),
+                ));
+                $response_tentativa_2 = curl_exec($curl_tentativa_2);
+                $http_status_tentativa_2 = curl_getinfo($curl_tentativa_2, CURLINFO_HTTP_CODE);
+                $GLOBALS['log']->fatal('Curl success: HTTP Status 2: ' . print_r($response_tentativa_2, True));
+                if($http_status_tentativa_2 >= 200 && $http_status_tentativa_2 <= 299){
+                    $GLOBALS['log']->fatal('Curl success: Respostas de sucesso na tentativa 2: ' . $http_status);
+                    $GLOBALS['log']->fatal('Curl success: JSON: ' . $response_tentativa_2);
+                    $status = true;
+                } else {
+                    $GLOBALS['log']->fatal('Curl error:  Erros do cliente: ' . $http_status_tentativa_2);
+                    $GLOBALS['log']->fatal('Curl error: JSON: ' . $response_tentativa_2);
+                    $status = false;
+                    $this->errorConnectionAPI($id, $type);
+                }
                 break;
             case  ($http_status >= 500 && $http_status <= 599):
                 $GLOBALS['log']->fatal('Curl error:  Erros do servidor: ' . $http_status);
@@ -193,6 +241,47 @@ class requestAPI_SAP_class
         }
 
         return true;
+    }
+
+    public function autenticaMiddleware() {
+
+        $url_AUTH = $GLOBALS["app_list_strings"]['MIDDLEWARE']['url_AUTH'];
+        $user_AUTH = $GLOBALS["app_list_strings"]['MIDDLEWARE']['user_AUTH'];
+        $password_AUTH = $GLOBALS["app_list_strings"]['MIDDLEWARE']['password_AUTH'];
+
+        $payload = array(
+            "username"=> $user_AUTH, 
+            "password"=> $password_AUTH,
+        );
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => $url_AUTH,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => '',
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 0,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => 'POST',
+        CURLOPT_POSTFIELDS => json_encode($payload),
+        CURLOPT_HTTPHEADER => array(
+            'Content-Type: application/json'
+        ),
+        ));
+
+        $response = curl_exec($curl);
+        $res = json_decode($response, true);
+        $http_status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+
+        if($http_status >= 200 && $http_status <= 299){
+            $GLOBALS['log']->fatal('AUTH MIDDLEWARE: ' . $http_status);
+            return $res["token"];
+        } else {
+            $GLOBALS['log']->fatal('AUTH MIDDLEWARE: ' . $http_status);
+            return null;
+        }
     }
 }
 
