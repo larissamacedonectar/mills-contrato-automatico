@@ -344,7 +344,7 @@
 					"forma_de_pagamento" => $bean->forma_de_pagamento_c,
 					"cnae" => $bean->cnae_c,
 					"contribuinte" => $bean->contribuinte_c,
-					"porte_receita" => $bean->porte_receita_c,
+					//"porte_receita" => $bean->porte_receita_c,
 					"grupo_cliente" => $grupo_cliente_SAP[$bean->segmentacao_gtm_c],
 
 					"setorindustrial" => "0001", // Retirar após o SAP subir a próxima versão
