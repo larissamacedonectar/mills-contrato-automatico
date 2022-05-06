@@ -315,9 +315,9 @@
 					"id_sugar" => $bean->id,
 					"grupo_cliente" => $grupo_cliente_SAP[$bean->segmentacao_gtm_c],
 
-					"inscricao_municipal" => $insc_municipal, // Retirar após o SAP subir a próxima versão
-					"setorindustrial" => "0001", // Retirar após o SAP subir a próxima versão
-					"cod_ind" => "9999", // Retirar após o SAP subir a próxima versão
+					//"inscricao_municipal" => $insc_municipal, // Retirar após o SAP subir a próxima versão
+					//"setorindustrial" => "0001", // Retirar após o SAP subir a próxima versão
+					//"cod_ind" => "9999", // Retirar após o SAP subir a próxima versão
 
 					"grupo_contas" => "ZPJU"
 				);
@@ -330,7 +330,7 @@
 					"emails"=> $emails,
 					"rua" => $this->replace($bean->billing_address_street),
 					"numero" => $bean->billing_address_number_c,
-					"suplemento" => $this->replace($bean->billing_address_add_c),
+					"suplemento" => $bean->billing_address_add_c,
 					"bairro" => $this->replace($bean->billing_address_quarter_c),
 					"cidade" => $cidade,
 					"cep" =>  $bean->billing_address_postalcode,
