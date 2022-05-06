@@ -13,7 +13,7 @@ $manifest = array(
 	'is_uninstallable' => true,
     'published_date' => date('Y-m-d h:i:s'),
 	'type' => 'module',
-	'version' => '3.0',
+	'version' => '3.1',
 );
 
 $installdefs = array(

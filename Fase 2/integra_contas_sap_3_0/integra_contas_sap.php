@@ -259,7 +259,7 @@
 	  {
 			$emails = $this->listEmails($bean->emailAddress->addresses);
 			$cnpj = $this->checkCNPJ($bean->cnpj_c);
-			$cep = preg_replace('/[^0-9]/', '', (string) $bean->billing_address_postalcode);
+			//$cep = preg_replace('/[^0-9]/', '', (string) $bean->billing_address_postalcode);
 
 
 			if ($bean->billing_address_county == "" || empty($bean->billing_address_county ) || strtoupper($bean->billing_address_county) == 'BRASIL') {
@@ -292,6 +292,7 @@
 
 			$grupo_cliente_SAP = $GLOBALS['app_list_strings']['grupo_cliente_SAP_list']; //Faz o DE/PARA entre grupo_cliente_SAP_list
 			//e segmentacao_gtm_list.
+			$forma_pagamento_SAP = $GLOBALS['app_list_strings']['froma_pagamento_SAP_list'];
 
 
 			if($bean->codsap_c != "" OR !empty($bean->codsap_c))
@@ -302,10 +303,10 @@
 					"emails"=> $emails,
 					"rua" => $this->replace($bean->billing_address_street),
 					"numero" => $bean->billing_address_number_c,
-					"suplemento" => $this->replace($bean->billing_address_add_c),
+					"suplemento" => $bean->billing_address_add_c,
 					"bairro" => $this->replace($bean->billing_address_quarter_c),
 					"cidade" => $cidade,
-					"cep" => $cep,
+					"cep" => $bean->billing_address_postalcode,
 					"estado" => $estado,
 					"pais" => $pais, 
 					"telefone" => $bean->phone_office,
@@ -332,7 +333,7 @@
 					"suplemento" => $this->replace($bean->billing_address_add_c),
 					"bairro" => $this->replace($bean->billing_address_quarter_c),
 					"cidade" => $cidade,
-					"cep" => $cep,
+					"cep" =>  $bean->billing_address_postalcode,
 					"estado" => $estado,
 					"pais" => $pais, 
 					"telefone" => $bean->phone_office,
@@ -341,14 +342,14 @@
 					"inscricao_municipal" => $insc_municipal,
 					"codigo_sap" => $bean->codsap_c,
 					"id_sugar" => $bean->id,
-					"forma_de_pagamento" => $bean->forma_de_pagamento_c,
+					"forma_de_pagamento" => $forma_pagamento_SAP[$bean->forma_de_pagamento_c],
 					"cnae" => $bean->cnae_c,
 					"contribuinte" => $bean->contribuinte_c,
 					//"porte_receita" => $bean->porte_receita_c,
 					"grupo_cliente" => $grupo_cliente_SAP[$bean->segmentacao_gtm_c],
 
-					"setorindustrial" => "0001", // Retirar após o SAP subir a próxima versão
-					"cod_ind" => "9999", // Retirar após o SAP subir a próxima versão
+					//"setorindustrial" => "0001", // Retirar após o SAP subir a próxima versão
+					//"cod_ind" => "9999", // Retirar após o SAP subir a próxima versão
 
 					"grupo_contas" => "ZPJU"
 				);
