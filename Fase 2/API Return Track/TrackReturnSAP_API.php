@@ -88,7 +88,7 @@ class TrackReturnSAP_API extends SugarApi
             $id = $args['id_sugar'];
             $cod_sap = $args['cod_sap'];
 
-            $inscricao_estadual = $args['id_sugar'];
+            $inscricao_estadual = $args['inscricao_estadual'];
             $inscricao_municipal = $args['inscricao_municipal'];
             $contribuinte = $args['contribuinte'];
             $forma_pagamento = $args['forma_pagamento'];
