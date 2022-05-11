@@ -91,7 +91,10 @@ class TrackReturnSAP_API extends SugarApi
             $inscricao_estadual = $args['inscricao_estadual'];
             $inscricao_municipal = $args['inscricao_municipal'];
             $contribuinte = $args['contribuinte'];
-            $forma_pagamento = $args['forma_pagamento'];
+
+            $forma_pagamento_SAP = $GLOBALS['app_list_strings']['forma_pagamento_sap_list'];
+            $forma_pagamento = $forma_pagamento_SAP[$args['forma_pagamento']];
+
             $data_hora_integracao = $args['data_hora_integracao'];
              // Fim: prepara varíaveis
 
