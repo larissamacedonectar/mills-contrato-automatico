@@ -57,10 +57,11 @@ class RetornoContaSAP_API extends SugarApi
 	public function RetornoContaSAP_API_method($api, $args) {
 
 		require_once 'custom/Saneamento/ValidadorDados/validadorDados.php';
-        
+        $GLOBALS['log']->fatal("ARGS restorno SAP");
+        $GLOBALS['log']->fatal($args);
         if(!empty($args["IDConta"])) {
             global $db;
-
+            
             // Accounts
             $id = $args["IDConta"];
             $billing_address_street = $args["rua"];

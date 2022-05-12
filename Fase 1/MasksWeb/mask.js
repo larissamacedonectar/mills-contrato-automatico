@@ -1,9 +1,15 @@
 /* Máscaras JS */
 
 function mascara(o,f) {
-
-    o.value=f(o);
-    $(o).trigger('change');
+    var url = window.location.href.split('/');
+    //ajsute para não impactar no filtro de CNPJ - não aplica a mascara quando esta na listagem
+    console.log(url.length);
+    
+    if(url.length != 4){
+        o.value=f(o);
+        $(o).trigger('change');
+    }
+    
 }
 function mascara_cnpj(obj) {
 

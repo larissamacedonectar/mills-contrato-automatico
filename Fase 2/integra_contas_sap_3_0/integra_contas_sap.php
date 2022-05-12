@@ -268,7 +268,7 @@
 				$pais = $bean->billing_address_county;
 			}
 
-			if ( $bean->imunicipal_c == "" ||  empty($bean->imunicipal_c)) {
+			if ( $bean->imunicipal_c == "" || $bean->imunicipal_c == "PENDENTE" ||  empty($bean->imunicipal_c)) {
 				$insc_municipal = "PENDENTE";  
 			} else {
 				$insc_municipal = preg_replace('/[^0-9]/', '', (string)  $bean->imunicipal_c);
