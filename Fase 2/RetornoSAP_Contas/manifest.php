@@ -5,7 +5,7 @@ $manifest = array(
 	'name' => 'API de Retorno de Conta SAP',
 	'acceptable_sugar_flavors' => array('PRO', 'CORP', 'ENT', 'ULT'),
 	'acceptable_sugar_versions' => array(
-	'regex_matches' => array('11\\.[0-9]\\.[0-9]'),
+	'regex_matches' => array('12\\.[0-9]\\.[0-9]'),
 	),
 	'author' => 'Nectar Consulting',
 	'description' => 'API de Retorno de Conta SAP',
