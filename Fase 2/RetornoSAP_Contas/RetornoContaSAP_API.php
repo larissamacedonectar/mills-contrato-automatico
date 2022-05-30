@@ -57,13 +57,19 @@ class RetornoContaSAP_API extends SugarApi
 	public function RetornoContaSAP_API_method($api, $args) {
 
 		require_once 'custom/Saneamento/ValidadorDados/validadorDados.php';
-        $GLOBALS['log']->fatal("ARGS restorno SAP");
-        $GLOBALS['log']->fatal($args);
+        
         if(!empty($args["IDConta"])) {
-            global $db;
-            
+            global $db, $log;
+
             // Accounts
             $id = $args["IDConta"];
+            $id = strtolower($id);
+            $accountBean = BeanFactory::retrieveBean("Accounts",$id);
+            if(empty($accountBean)){
+                $api->getResponse()->setStatus("422");
+                return new SugarApiExceptionInvalidParameter('Id conta SugarCRM não encontrado');
+            }
+
             $billing_address_street = $args["rua"];
             $billing_address_postalcode = $args["cep"];
             $billing_address_country = $args["pais"];
@@ -73,13 +79,22 @@ class RetornoContaSAP_API extends SugarApi
             $emails = $args["emails"];
     
             // Accounts_cstm
-            $cod_sap_c = $args["codSap"];
+            $cod_sap_c = $args["cod_sap"];
             $billing_address_number_c = $args["numero"];
             $billing_address_add_c = $args["complemento"];
             $billing_address_quarter_c = $args["bairro"];
             $nomeCidade = $args["cidade"];
             $nomeEstado = $args["estado"];
-            $forma_de_pagamento_c = $args["forma_pagamento"];
+
+            $forma_pagamento_SAP = $GLOBALS['app_list_strings']['forma_pagamento_sap_list'];
+            $forma_pagamento = '';
+            foreach($forma_pagamento_SAP as $key=>$value){
+                if($value == $args['forma_pagamento']){
+                    $forma_pagamento = $key;
+                    $GLOBALS['log']->fatal("ARGS restorno Track Sap - foreach". $forma_pagamento);
+                }
+            }
+            
             $im_c = $args["inscricao_estadual"];
             $imunicipal_c = $args["inscricao_municipal"];
             $cnae_c = $args["cnae"];
@@ -89,44 +104,53 @@ class RetornoContaSAP_API extends SugarApi
             // Passando pelo saneaemento
             
             $logSaneamento = array();
-
             $saneamentoCEP = new validadorDados;
-            $resultadoValidacaoCEP = $saneamentoCEP->cepValida($billing_address_postalcode);
 
-            if ($resultadoValidacaoCEP["status"] == false) {
-                $logSaneamento["CEP"] = $resultadoValidacaoCEP["resultado"];
-            } else {
-                $billing_address_postalcode = $resultadoValidacaoCEP["resultado"];
+            if (!empty($billing_address_postalcode)) {
+                $resultadoValidacaoCEP = $saneamentoCEP->cepValida($billing_address_postalcode);
+                if ($resultadoValidacaoCEP["status"] == false) {
+                    $logSaneamento["CEP"] = $resultadoValidacaoCEP["resultado"];
+                } else {
+                    $billing_address_postalcode = $resultadoValidacaoCEP["resultado"];
+                }
             }
             
-            $resultadoValidacaoCidade = $this->buscarCidadePorSemelhanca($nomeCidade);  
-            if ($resultadoValidacaoCidade["status"] == false) {
-                $logSaneamento["Cidade"] = $resultadoValidacaoCidade["resultado"];
-            } else {
-                $it4_cidades_id_c = $resultadoValidacaoCidade["resultado"];
+            if (!empty($nomeCidade)) {
+                $resultadoValidacaoCidade = $this->buscarCidadePorSemelhanca($nomeCidade);  
+                if ($resultadoValidacaoCidade["status"] == false) {
+                    $logSaneamento["Cidade"] = $resultadoValidacaoCidade["resultado"];
+                } else {
+                    $it4_cidades_id_c = $resultadoValidacaoCidade["resultado"];
+                }
             }
 
-            $resultadoValidacaoEstado = $this->buscarEstadoPorSemelhanca($nomeEstado);  
-            if ($resultadoValidacaoEstado["status"] == false) {
-                $logSaneamento["Estado"] = $resultadoValidacaoEstado["resultado"];
-            } else {
-                $it4_estados_id_c = $resultadoValidacaoEstado["resultado"];
+            if (!empty($nomeEstado)) {
+                $resultadoValidacaoEstado = $this->buscarEstadoPorSemelhanca($nomeEstado);  
+                if ($resultadoValidacaoEstado["status"] == false) {
+                    $logSaneamento["Estado"] = $resultadoValidacaoEstado["resultado"];
+                } else {
+                    $it4_estados_id_c = $resultadoValidacaoEstado["resultado"];
+                }
             }
 
-            $saneamentoTelefone = new validadorDados;
-            $resultadoValidacaoTelefone = $saneamentoTelefone->telefoneValida($phone_office);  
-            if ($resultadoValidacaoTelefone["status"] == false) {
-                $logSaneamento["Telefone"] = $resultadoValidacaoTelefone["resultado"];
-            } else {
-                $phone_office = $resultadoValidacaoTelefone["resultado"];
+            if (!empty($phone_office)) {
+                $saneamentoTelefone = new validadorDados;
+                $resultadoValidacaoTelefone = $saneamentoTelefone->telefoneValida($phone_office);  
+                if ($resultadoValidacaoTelefone["status"] == false) {
+                    $logSaneamento["Telefone"] = $resultadoValidacaoTelefone["resultado"];
+                } else {
+                    $phone_office = $resultadoValidacaoTelefone["resultado"];
+                }
             }
 
-            $saneamentoTelefoneAlternativo = new validadorDados;
-            $resultadoValidacaoTelefoneAlternativo = $saneamentoTelefoneAlternativo->telefoneValida($phone_alternate); 
-            if ($resultadoValidacaoTelefoneAlternativo["status"] == false) {
-                $logSaneamento["TelefoneAlternativo"] = $resultadoValidacaoTelefoneAlternativo["resultado"];
-            } else {
-                $phone_alternate = $resultadoValidacaoTelefoneAlternativo["resultado"];
+            if (!empty($phone_alternate)) {
+                $saneamentoTelefoneAlternativo = new validadorDados;
+                $resultadoValidacaoTelefoneAlternativo = $saneamentoTelefoneAlternativo->telefoneValida($phone_alternate); 
+                if ($resultadoValidacaoTelefoneAlternativo["status"] == false ) {
+                    $logSaneamento["TelefoneAlternativo"] = $resultadoValidacaoTelefoneAlternativo["resultado"];
+                } else {
+                    $phone_alternate = $resultadoValidacaoTelefoneAlternativo["resultado"];
+                }
             }
 
             //return array("arg" => $args, "CEP" => $resultadoValidacaoCEP, "telefone" => $resultadoValidacaoTelefone);
@@ -141,12 +165,18 @@ class RetornoContaSAP_API extends SugarApi
                 return new SugarApiExceptionMissingParameter('Para esse tipo de Contribuinte a Inscrição Estadual é obrigatório!');
             }
             
+            //ajuste para cenário onde SAP atualiza conta sem codsap_c no sugar
+            $insert_cod_sap = '';
+            if(empty($accountBean->codsap_c)){
+                
+                $insert_cod_sap = "codsap_c = '$cod_sap_c', "; 
+            }
 
             try {
                 $update_contas = "UPDATE accounts
-                                  SET        
+                                  SET      
                                     billing_address_street = '$billing_address_street',
-                                    billing_address_postalcode = '$billing_addrss_postalcode',
+                                    billing_address_postalcode = '$billing_address_postalcode',
                                     billing_address_country = '$billing_address_country',
                                     phone_office = '$phone_office',
                                     phone_alternate = '$phone_alternate'
@@ -155,24 +185,31 @@ class RetornoContaSAP_API extends SugarApi
     
     
                 $update_contas_cstm = "UPDATE accounts_cstm
-                                       SET        
+                                       SET   ".$insert_cod_sap."       
                                             billing_address_number_c = '$billing_address_number_c',
                                             billing_address_add_c = '$billing_address_add_c',
                                             billing_address_quarter_c = '$billing_address_quarter_c',
                                             it4_cidades_id_c = '$it4_cidades_id_c',
                                             it4_estados_id_c = '$it4_estados_id_c',
-                                            forma_de_pagamento_c = '$forma_de_pagamento_c',
+                                            forma_de_pagamento_c = '$forma_pagamento',
                                             im_c = '$im_c',
                                             imunicipal_c = '$imunicipal_c',
                                             cnae_c = '$cnae_c',
                                             contribuinte_c = '$contribuinte_c',
                                             data_integr_int_ii_c = '$data_integr_int_ii_c'
                                        WHERE id_c = '$id'";
+                $log->fatal($update_contas_cstm);
                 $db->query($update_contas_cstm);
     
                 $emailContato = new SugarEmailAddress;
+                $i = 0;
                 foreach ($emails as $emailObject) {
-                    $emailContato->addAddress($emailObject, false);
+                    if($i == 0) {
+                        $emailContato->addAddress($emailObject, true);
+                    } else {
+                        $emailContato->addAddress($emailObject, false);
+                    }
+                    $i++;
                 }
                 $emailContato->save($id, "Accounts");
 
@@ -201,6 +238,13 @@ class RetornoContaSAP_API extends SugarApi
 
             // Accounts
             $id = $args["IDConta"];
+            $id = strtolower($id);
+            $accountBean = BeanFactory::retrieveBean("Accounts",$id);
+            if(empty($accountBean)){
+                $api->getResponse()->setStatus("422");
+                return new SugarApiExceptionInvalidParameter('Id conta SugarCRM não encontrado');
+            }
+
             $rating = $args["rating"];
     
             $emails = array($args["emails"]);
@@ -214,8 +258,8 @@ class RetornoContaSAP_API extends SugarApi
             $limite_total_c = $args["limit_total_credito"];
             $limite_disponivel_c = $args["credito_disponivel"];
             $compromisso_total_c = $args["credito_compromissado"];
-            $a_receber_c = $args["a_Receber"];
-            $a_vencer_c = $args["a_Vender"];
+            $a_receber_c = $args["a_receber"];
+            $a_vencer_c = $args["a_vencer"];
             $vencido_abaixo_c = $args["vencido_cobranca"];
             $vencido_acima_c = $args["vencido_credito"];
             $vencido_total_c = $args["total_vencido"];
