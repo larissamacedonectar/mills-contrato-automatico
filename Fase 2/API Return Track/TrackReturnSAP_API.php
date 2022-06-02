@@ -40,9 +40,6 @@ class TrackReturnSAP_API extends SugarApi
         
     public function TrackReturnSAP_API_method($api, $args)
         {
-            $GLOBALS['log']->fatal("ARGS restorno Track Sap");
-            $GLOBALS['log']->fatal($args);
-
             global $db;
 
             // Inicio: valida JSON
@@ -63,7 +60,6 @@ class TrackReturnSAP_API extends SugarApi
 
             // Inicio: Valida Tipo
             if ($args['tipo'] == 1) {
-                $GLOBALS['log']->fatal("ARGS restorno Track Sap - acounts");
                 $module = 'Accounts';
             } else if ($args['tipo'] == 2) {
                 $module = 'Contacts'; 
@@ -96,12 +92,10 @@ class TrackReturnSAP_API extends SugarApi
             $contribuinte = $args['contribuinte'];
 
             $forma_pagamento_SAP = $GLOBALS['app_list_strings']['forma_pagamento_sap_list'];
-            //$forma_pagamento = $forma_pagamento_SAP[$args['forma_pagamento']];
             $forma_pagamento = '';
             foreach($forma_pagamento_SAP as $key=>$value){
                 if($value == $args['forma_pagamento']){
                     $forma_pagamento = $key;
-                    $GLOBALS['log']->fatal("ARGS restorno Track Sap - foreach". $forma_pagamento);
                 }
             }
 
@@ -121,7 +115,6 @@ class TrackReturnSAP_API extends SugarApi
                     } else {
 
                         if($args['tipo'] == 1) { 
-                            $GLOBALS['log']->fatal("ARGS restorno Track Sap - tipo 1");
                             if ($bean->codsap_c) {
                                 $GLOBALS['log']->fatal("ARGS restorno Track Sap -PrimeiroIf");
                                 $update = "UPDATE $module_cstm 
@@ -134,9 +127,7 @@ class TrackReturnSAP_API extends SugarApi
                                     contribuinte_c = '$contribuinte'
                                 WHERE id_c = '$id'";
 
-                                $GLOBALS['log']->fatal($update);
                             } else {
-                                $GLOBALS['log']->fatal("ARGS restorno Track Sap -SegundoIf");
                                 $update = "UPDATE $module_cstm 
                                 SET data_integracao_sap_c = '$dataIntegracao',
                                     msg_interacao_sap_c = '$msg',
@@ -151,14 +142,12 @@ class TrackReturnSAP_API extends SugarApi
                             }
                         } else {
                             if ($bean->codsap_c) {
-                                $GLOBALS['log']->fatal("ARGS restorno Track Sap - ELSE Primeiro If");
                                 $update = "UPDATE $module_cstm 
                                 SET data_integracao_sap_c = '$dataIntegracao',
                                     msg_interacao_sap_c = '$msg',
                                     status_integracao_sap_c = '$status'
                                 WHERE id_c = '$id'";
                             } else {
-                                $GLOBALS['log']->fatal("ARGS restorno Track Sap - ELSE Segundo If");
                                 $update = "UPDATE $module_cstm 
                                 SET data_integracao_sap_c = '$dataIntegracao',
                                     msg_interacao_sap_c = '$msg',
