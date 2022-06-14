@@ -168,7 +168,6 @@ class RetornoContaSAP_API extends SugarApi
             //ajuste para cenário onde SAP atualiza conta sem codsap_c no sugar
             $insert_cod_sap = '';
             if(empty($accountBean->codsap_c)){
-                
                 $insert_cod_sap = "codsap_c = '$cod_sap_c', "; 
             }
 
@@ -281,7 +280,7 @@ class RetornoContaSAP_API extends SugarApi
     
                 $update_contas_cstm = "UPDATE accounts_cstm
                                        SET 
-                                            data_integr_sap_sugar_cred_c = '$data_integr_sap_sugar_cred_c',
+                                            data_integr_sap_sugar_cred_c =  DATE_ADD('$data_integr_sap_sugar_cred_c', INTERVAL 3 HOUR),
                                             conta_credito_c = '$conta_credito_c',
                                             data_ult_verif_cred_cli_c = '$data_ult_verif_cred_cli_c ',
                                             limite_total_c = ' $limite_total_c ',
