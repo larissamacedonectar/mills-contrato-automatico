@@ -12,7 +12,7 @@ $manifest = array(
     'is_uninstallable' => true,
     'published_date' => date('Y-m-d h:i:s'),
     'type' => 'module',
-    'version' => '1.0',
+    'version' => '1.1',
     'key' => 'MasksWeb',
 );
 
@@ -37,7 +37,7 @@ $installdefs = array(
         ),
         array(
             'from' => '<basepath>/mask.js',
-            'to' => 'custom/masks/mask.js',
+            'to' => 'custom/masks_v1/mask.js',
         ),
     ),
 );

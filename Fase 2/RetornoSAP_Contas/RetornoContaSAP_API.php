@@ -59,10 +59,17 @@ class RetornoContaSAP_API extends SugarApi
 		require_once 'custom/Saneamento/ValidadorDados/validadorDados.php';
         
         if(!empty($args["IDConta"])) {
-            global $db;
+            global $db, $log;
 
             // Accounts
             $id = $args["IDConta"];
+            $id = strtolower($id);
+            $accountBean = BeanFactory::retrieveBean("Accounts",$id);
+            if(empty($accountBean)){
+                $api->getResponse()->setStatus("422");
+                return new SugarApiExceptionInvalidParameter('Id conta SugarCRM não encontrado');
+            }
+
             $billing_address_street = $args["rua"];
             $billing_address_postalcode = $args["cep"];
             $billing_address_country = $args["pais"];
@@ -72,7 +79,7 @@ class RetornoContaSAP_API extends SugarApi
             $emails = $args["emails"];
     
             // Accounts_cstm
-            $cod_sap_c = $args["codSap"];
+            $cod_sap_c = $args["cod_sap"];
             $billing_address_number_c = $args["numero"];
             $billing_address_add_c = $args["complemento"];
             $billing_address_quarter_c = $args["bairro"];
@@ -158,12 +165,17 @@ class RetornoContaSAP_API extends SugarApi
                 return new SugarApiExceptionMissingParameter('Para esse tipo de Contribuinte a Inscrição Estadual é obrigatório!');
             }
             
+            //ajuste para cenário onde SAP atualiza conta sem codsap_c no sugar
+            $insert_cod_sap = '';
+            if(empty($accountBean->codsap_c)){
+                $insert_cod_sap = "codsap_c = '$cod_sap_c', "; 
+            }
 
             try {
                 $update_contas = "UPDATE accounts
-                                  SET        
+                                  SET      
                                     billing_address_street = '$billing_address_street',
-                                    billing_address_postalcode = '$billing_addrss_postalcode',
+                                    billing_address_postalcode = '$billing_address_postalcode',
                                     billing_address_country = '$billing_address_country',
                                     phone_office = '$phone_office',
                                     phone_alternate = '$phone_alternate'
@@ -172,7 +184,7 @@ class RetornoContaSAP_API extends SugarApi
     
     
                 $update_contas_cstm = "UPDATE accounts_cstm
-                                       SET        
+                                       SET   ".$insert_cod_sap."       
                                             billing_address_number_c = '$billing_address_number_c',
                                             billing_address_add_c = '$billing_address_add_c',
                                             billing_address_quarter_c = '$billing_address_quarter_c',
@@ -185,11 +197,18 @@ class RetornoContaSAP_API extends SugarApi
                                             contribuinte_c = '$contribuinte_c',
                                             data_integr_int_ii_c = '$data_integr_int_ii_c'
                                        WHERE id_c = '$id'";
+                $log->fatal($update_contas_cstm);
                 $db->query($update_contas_cstm);
     
                 $emailContato = new SugarEmailAddress;
+                $i = 0;
                 foreach ($emails as $emailObject) {
-                    $emailContato->addAddress($emailObject, false);
+                    if($i == 0) {
+                        $emailContato->addAddress($emailObject, true);
+                    } else {
+                        $emailContato->addAddress($emailObject, false);
+                    }
+                    $i++;
                 }
                 $emailContato->save($id, "Accounts");
 
@@ -218,6 +237,13 @@ class RetornoContaSAP_API extends SugarApi
 
             // Accounts
             $id = $args["IDConta"];
+            $id = strtolower($id);
+            $accountBean = BeanFactory::retrieveBean("Accounts",$id);
+            if(empty($accountBean)){
+                $api->getResponse()->setStatus("422");
+                return new SugarApiExceptionInvalidParameter('Id conta SugarCRM não encontrado');
+            }
+
             $rating = $args["rating"];
     
             $emails = array($args["emails"]);
@@ -231,8 +257,8 @@ class RetornoContaSAP_API extends SugarApi
             $limite_total_c = $args["limit_total_credito"];
             $limite_disponivel_c = $args["credito_disponivel"];
             $compromisso_total_c = $args["credito_compromissado"];
-            $a_receber_c = $args["a_Receber"];
-            $a_vencer_c = $args["a_Vender"];
+            $a_receber_c = $args["a_receber"];
+            $a_vencer_c = $args["a_vencer"];
             $vencido_abaixo_c = $args["vencido_cobranca"];
             $vencido_acima_c = $args["vencido_credito"];
             $vencido_total_c = $args["total_vencido"];
@@ -254,7 +280,7 @@ class RetornoContaSAP_API extends SugarApi
     
                 $update_contas_cstm = "UPDATE accounts_cstm
                                        SET 
-                                            data_integr_sap_sugar_cred_c = '$data_integr_sap_sugar_cred_c',
+                                            data_integr_sap_sugar_cred_c =  DATE_ADD('$data_integr_sap_sugar_cred_c', INTERVAL 3 HOUR),
                                             conta_credito_c = '$conta_credito_c',
                                             data_ult_verif_cred_cli_c = '$data_ult_verif_cred_cli_c ',
                                             limite_total_c = ' $limite_total_c ',
